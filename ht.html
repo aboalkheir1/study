@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظم الدراسة الشامل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#5D5CDE',
+                            DEFAULT: '#5D5CDE',
+                            dark: '#4A49B8',
+                        },
+                        secondary: {
+                            light: '#FF6B6B',
+                            DEFAULT: '#FF6B6B',
+                            dark: '#FF5252',
+                        },
+                        success: {
+                            light: '#4CAF50',
+                            DEFAULT: '#4CAF50',
+                            dark: '#388E3C',
+                        },
+                        info: {
+                            light: '#29B6F6',
+                            DEFAULT: '#29B6F6',
+                            dark: '#0288D1',
+                        }
+                    },
+                    fontFamily: {
+                        'rubik': ['Rubik', 'sans-serif'],
+                    },
+                    backdropBlur: {
+                        'sm': '4px',
+                        'md': '8px',
+                        'lg': '12px',
+                        'xl': '16px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --primary: #5D5CDE;
+            --primary-dark: #4A49B8;
+            --secondary: #FF6B6B;
+            --success: #4CAF50;
+            --info: #29B6F6;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-bg-dark: rgba(30, 30, 30, 0.8);
+            --border-light: rgba(255, 255, 255, 0.2);
+            --border-dark: rgba(0, 0, 0, 0.2);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rubik', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dark .glass {
+            background: var(--glass-bg-dark);
+            border: 1px solid var(--border-dark);
+        }
+
+        .timer-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .btn-tab {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .btn-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .btn-tab.active::after {
+            width: 100%;
+        }
+
+        .btn-tab:hover::after {
+            width: 100%;
+        }
+
+        .todo-item {
+            transition: all 0.3s ease;
+        }
+
+        .todo-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 1rem;
+        }
+
+        .schedule-item {
+            transition: all 0.3s ease;
+        }
+
+        .schedule-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes bell-ring {
+            0%, 100% { transform: rotate(0); }
+            20%, 60% { transform: rotate(15deg); }
+            40%, 80% { transform: rotate(-15deg); }
+        }
+
+        .animate-bell {
+            animation: bell-ring 1s ease;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Custom checkboxes */
+        .custom-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .custom-checkbox i {
+            color: white;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .custom-checkbox.checked {
+            background: var(--primary);
+        }
+
+        .custom-checkbox.checked i {
+            opacity: 1;
+        }
+
+        .task-complete {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        /* Responsive fixes */
+        @media (max-width: 640px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                z-index: 100;
+                border-radius: 1rem 1rem 0 0;
+            }
+            .sidebar ul {
+                display: flex;
+                justify-content: space-around;
+            }
+            .sidebar li {
+                margin: 0;
+                padding: 0.5rem;
+            }
+            .sidebar-item-text {
+                display: none;
+            }
+            .content {
+                margin-bottom: 4rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-gray-900 dark:text-white">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Sidebar -->
+            <div class="glass md:w-64 p-4 md:sticky md:top-4 md:self-start rounded-xl">
+                <div class="text-center mb-6">
+                    <h1 class="text-xl font-bold text-primary">منظم الدراسة الشامل</h1>
+                </div>
+                <ul class="space-y-2">
+                    <li>
+                        <button class="btn-tab active w-full text-right py-2 px-3 rounded-lg hover:bg-white/20 dark:hover:bg-black/20 transition flex items-center" data-tab="pomodoro">
+                            <i class="bi bi-clock text-xl ml-2"></i>
+                            <span>مؤقت بومودورو</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="btn-tab w-full text-right py-2 px-3 rounded-lg hover:bg-white/20 dark:hover:bg-black/20 transition flex items-center" data-tab="todo">
+                            <i class="bi bi-check2-square text-xl ml-2"></i>
+                            <span>قائمة المهام</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="btn-tab w-full text-right py-2 px-3 rounded-lg hover:bg-white/20 dark:hover:bg-black/20 transition flex items-center" data-tab="schedule">
+                            <i class="bi bi-calendar-week text-xl ml-2"></i>
+                            <span>الجدول الدراسي</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="btn-tab w-full text-right py-2 px-3 rounded-lg hover:bg-white/20 dark:hover:bg-black/20 transition flex items-center" data-tab="progress">
+                            <i class="bi bi-graph-up text-xl ml-2"></i>
+                            <span>تتبع الإنجاز</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="btn-tab w-full text-right py-2 px-3 rounded-lg hover:bg-white/20 dark:hover:bg-black/20 transition flex items-center" data-tab="goals">
+                            <i class="bi bi-trophy text-xl ml-2"></i>
+                            <span>الأهداف الدراسية</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="btn-tab w-full text-right py-2 px-3 rounded-lg hover:bg-white/20 dark:hover:bg-black/20 transition flex items-center" data-tab="focus">
+                            <i class="bi bi-shield-lock text-xl ml-2"></i>
+                            <span>وضع التركيز</span>
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Theme Toggle -->
+                <div class="mt-6 flex justify-between items-center">
+                    <span class="text-sm">الوضع الليلي</span>
+                    <button id="theme-toggle" class="p-2 rounded-full bg-white/20 dark:bg-black/20">
+                        <i class="bi bi-moon-stars dark:hidden"></i>
+                        <i class="bi bi-sun hidden dark:inline"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="flex-1">
+                <!-- Pomodoro Timer -->
+                <div id="pomodoro" class="tab-content active">
+                    <div class="glass p-6 rounded-xl mb-6">
+                        <h2 class="text-2xl font-bold mb-4 text-center text-primary">مؤقت بومودورو</h2>
+                        <div class="flex justify-center mb-6">
+                            <div class="bg-white/20 dark:bg-black/20 p-8 rounded-full text-center">
+                                <h3 id="timer-display" class="text-6xl font-bold">25:00</h3>
+                                <p id="timer-mode" class="mt-2 text-lg">وقت الدراسة</p>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-bar">
+                            <div id="timer-progress" class="progress-bar-inner" style="width: 0%"></div>
+                        </div>
+                        
+                        <div class="flex justify-center gap-4 mt-6">
+                            <button id="timer-start" class="timer-btn bg-primary text-white py-2 px-6 rounded-lg flex items-center transition hover:bg-primary-dark focus:outline-none">
+                                <i class="bi bi-play-fill mr-1"></i> بدء
+                            </button>
+                            <button id="timer-pause" class="timer-btn bg-secondary text-white py-2 px-6 rounded-lg flex items-center transition hover:bg-secondary-dark focus:outline-none hidden">
+                                <i class="bi bi-pause-fill mr-1"></i> إيقاف مؤقت
+                            </button>
+                            <button id="timer-reset" class="timer-btn bg-gray-500 text-white py-2 px-6 rounded-lg flex items-center transition hover:bg-gray-600 focus:outline-none">
+                                <i class="bi bi-arrow-repeat mr-1"></i> إعادة
+                            </button>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <h4 class="text-lg font-semibold mb-2">إعدادات المؤقت</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm mb-1">وقت الدراسة (دقائق)</label>
+                                    <input type="number" id="study-time" class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base" value="25" min="1" max="90">
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1">وقت الراحة (دقائق)</label>
+                                    <input type="number" id="break-time" class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base" value="5" min="1" max="30">
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1">دورات</label>
+                                    <div class="flex items-center mt-2">
+                                        <span id="cycle-count" class="text-2xl font-bold">0</span>
+                                        <span class="mx-2">/</span>
+                                        <input type="number" id="cycle-goal" class="w-24 bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base" value="4" min="1" max="12">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass p-6 rounded-xl">
+                        <h3 class="text-xl font-bold mb-4">إحصائيات اليوم</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-white/20 dark:bg-black/20 p-4 rounded-lg text-center">
+                                <i class="bi bi-hourglass-split text-4xl text-primary mb-2"></i>
+                                <h4 class="text-sm">جلسات الدراسة</h4>
+                                <p id="daily-sessions" class="text-2xl font-bold">0</p>
+                            </div>
+                            <div class="bg-white/20 dark:bg-black/20 p-4 rounded-lg text-center">
+                                <i class="bi bi-clock-history text-4xl text-info mb-2"></i>
+                                <h4 class="text-sm">ساعات الدراسة</h4>
+                                <p id="daily-hours" class="text-2xl font-bold">0:00</p>
+                            </div>
+                            <div class="bg-white/20 dark:bg-black/20 p-4 rounded-lg text-center">
+                                <i class="bi bi-check2-all text-4xl text-success mb-2"></i>
+                                <h4 class="text-sm">مهام منجزة</h4>
+                                <p id="daily-tasks" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Todo List -->
+                <div id="todo" class="tab-content">
+                    <div class="glass p-6 rounded-xl mb-6">
+                        <h2 class="text-2xl font-bold mb-4 text-center text-primary">قائمة المهام الدراسية</h2>
+                        
+                        <form id="todo-form" class="mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="md:col-span-3">
+                                    <input type="text" id="task-name" placeholder="أضف مهمة جديدة..." class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                </div>
+                                <div>
+                                    <select id="task-category" class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                        <option value="">اختر التصنيف</option>
+                                        <option value="مذاكرة">مذاكرة</option>
+                                        <option value="واجب">واجب</option>
+                                        <option value="مراجعة">مراجعة</option>
+                                        <option value="امتحان">امتحان</option>
+                                        <option value="مشروع">مشروع</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input type="text" id="task-subject" placeholder="المادة الدراسية" class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                </div>
+                                <div>
+                                    <input type="date" id="task-due-date" class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                </div>
+                            </div>
+                            <button type="submit" class="mt-4 bg-primary text-white py-2 px-6 rounded-lg flex items-center transition hover:bg-primary-dark focus:outline-none">
+                                <i class="bi bi-plus-lg mr-1"></i> إضافة المهمة
+                            </button>
+                        </form>
+                        
+                        <div class="mb-4 flex items-center justify-between">
+                            <h3 class="text-xl font-bold">المهام الحالية</h3>
+                            <div class="flex gap-2">
+                                <select id="filter-category" class="bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-sm">
+                                    <option value="all">جميع التصنيفات</option>
+                                    <option value="مذاكرة">مذاكرة</option>
+                                    <option value="واجب">واجب</option>
+                                    <option value="مراجعة">مراجعة</option>
+                                    <option value="امتحان">امتحان</option>
+                                    <option value="مشروع">مشروع</option>
+                                </select>
+                                <select id="filter-status" class="bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-sm">
+                                    <option value="all">جميع الحالات</option>
+                                    <option value="pending">قيد الإنجاز</option>
+                                    <option value="completed">مكتملة</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="todo-list" class="space-y-3">
+                            <!-- Tasks will be added here dynamically -->
+                            <p id="empty-todo-message" class="text-center py-4 text-gray-500">لا توجد مهام حالية. أضف مهامك للبدء!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Study Schedule -->
+                <div id="schedule" class="tab-content">
+                    <div class="glass p-6 rounded-xl mb-6">
+                        <h2 class="text-2xl font-bold mb-4 text-center text-primary">الجدول الدراسي الذكي</h2>
+                        
+                        <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h3 class="text-lg font-semibold mb-2">إنشاء جدول جديد</h3>
+                                <select id="schedule-type" class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base mb-3">
+                                    <option value="daily">جدول يومي</option>
+                                    <option value="weekly">جدول أسبوعي</option>
+                                </select>
+                                <button id="generate-schedule" class="bg-primary text-white py-2 px-6 rounded-lg flex items-center transition hover:bg-primary-dark focus:outline-none">
+                                    <i class="bi bi-lightning-charge mr-1"></i> إنشاء الجدول تلقائياً
+                                </button>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold mb-2">إضافة مادة يدوياً</h3>
+                                <form id="add-subject-form">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input type="text" id="subject-name" placeholder="اسم المادة" class="bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                        <select id="subject-day" class="bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                            <option value="اليوم">اليوم</option>
+                                            <option value="السبت">السبت</option>
+                                            <option value="الأحد">الأحد</option>
+                                            <option value="الاثنين">الاثنين</option>
+                                            <option value="الثلاثاء">الثلاثاء</option>
+                                            <option value="الأربعاء">الأربعاء</option>
+                                            <option value="الخميس">الخميس</option>
+                                            <option value="الجمعة">الجمعة</option>
+                                        </select>
+                                        <input type="time" id="subject-start-time" class="bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                        <input type="time" id="subject-end-time" class="bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                    </div>
+                                    <button type="submit" class="mt-2 bg-secondary text-white py-2 px-6 rounded-lg flex items-center transition hover:bg-secondary-dark focus:outline-none">
+                                        <i class="bi bi-plus-lg mr-1"></i> إضافة المادة
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div id="schedule-tabs" class="flex border-b border-gray-300 dark:border-gray-700 mb-4">
+                            <button class="day-tab py-2 px-4 bg-primary text-white rounded-t-lg">اليوم</button>
+                            <button class="day-tab py-2 px-4">السبت</button>
+                            <button class="day-tab py-2 px-4">الأحد</button>
+                            <button class="day-tab py-2 px-4">الاثنين</button>
+                            <button class="day-tab py-2 px-4">الثلاثاء</button>
+                            <button class="day-tab py-2 px-4">الأربعاء</button>
+                            <button class="day-tab py-2 px-4">الخميس</button>
+                            <button class="day-tab py-2 px-4">الجمعة</button>
+                        </div>
+                        
+                        <div id="schedule-content">
+                            <div id="today-schedule" class="schedule-day active">
+                                <p id="empty-schedule-message" class="text-center py-4 text-gray-500">لا توجد مواد مضافة ليوم اليوم. أضف مواد أو قم بإنشاء جدول تلقائي!</p>
+                                <!-- Schedule items will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Tracking -->
+                <div id="progress" class="tab-content">
+                    <div class="glass p-6 rounded-xl mb-6">
+                        <h2 class="text-2xl font-bold mb-4 text-center text-primary">تتبع الإنجاز</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div class="glass p-4 rounded-lg text-center">
+                                <i class="bi bi-check2-circle text-4xl text-success mb-2"></i>
+                                <h3 class="text-lg font-semibold">المهام المنجزة</h3>
+                                <p id="total-completed-tasks" class="text-3xl font-bold">0</p>
+                                <span class="text-sm">هذا الأسبوع</span>
+                            </div>
+                            <div class="glass p-4 rounded-lg text-center">
+                                <i class="bi bi-clock-history text-4xl text-primary mb-2"></i>
+                                <h3 class="text-lg font-semibold">ساعات الدراسة</h3>
+                                <p id="total-study-hours" class="text-3xl font-bold">0:00</p>
+                                <span class="text-sm">هذا الأسبوع</span>
+                            </div>
+                            <div class="glass p-4 rounded-lg text-center">
+                                <i class="bi bi-calendar-check text-4xl text-info mb-2"></i>
+                                <h3 class="text-lg font-semibold">أيام النشاط</h3>
+                                <p id="active-days" class="text-3xl font-bold">0</p>
+                                <span class="text-sm">هذا الشهر</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3">مخطط التقدم الأسبوعي</h3>
+                            <div class="bg-white/20 dark:bg-black/20 p-4 rounded-lg">
+                                <div class="flex justify-between mb-2">
+                                    <span>السبت</span>
+                                    <span>الأحد</span>
+                                    <span>الاثنين</span>
+                                    <span>الثلاثاء</span>
+                                    <span>الأربعاء</span>
+                                    <span>الخميس</span>
+                                    <span>الجمعة</span>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1">
+                                    <div class="weekly-chart-bar" data-day="السبت" style="height: 30px; background-color: var(--primary);"></div>
+                                    <div class="weekly-chart-bar" data-day="الأحد" style="height: 60px; background-color: var(--primary);"></div>
+                                    <div class="weekly-chart-bar" data-day="الاثنين" style="height: 90px; background-color: var(--primary);"></div>
+                                    <div class="weekly-chart-bar" data-day="الثلاثاء" style="height: 120px; background-color: var(--primary);"></div>
+                                    <div class="weekly-chart-bar" data-day="الأربعاء" style="height: 80px; background-color: var(--primary);"></div>
+                                    <div class="weekly-chart-bar" data-day="الخميس" style="height: 40px; background-color: var(--primary);"></div>
+                                    <div class="weekly-chart-bar" data-day="الجمعة" style="height: 20px; background-color: var(--primary);"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold mb-3">النشاط اليومي</h3>
+                            <div class="bg-white/20 dark:bg-black/20 p-4 rounded-lg">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="text-right border-b border-gray-300 dark:border-gray-700">
+                                            <th class="pb-2">التاريخ</th>
+                                            <th class="pb-2">المهام المنجزة</th>
+                                            <th class="pb-2">ساعات الدراسة</th>
+                                            <th class="pb-2">دورات بومودورو</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="activity-log">
+                                        <!-- Activity logs will be added here dynamically -->
+                                        <tr>
+                                            <td colspan="4" class="text-center py-4 text-gray-500">لا توجد بيانات نشاط حتى الآن. ابدأ الدراسة لتسجيل النشاط!</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Study Goals -->
+                <div id="goals" class="tab-content">
+                    <div class="glass p-6 rounded-xl mb-6">
+                        <h2 class="text-2xl font-bold mb-4 text-center text-primary">الأهداف الدراسية</h2>
+                        
+                        <form id="goal-form" class="mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <input type="text" id="goal-title" placeholder="عنوان الهدف..." class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                </div>
+                                <div>
+                                    <select id="goal-type" class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                        <option value="task">عدد المهام</option>
+                                        <option value="hours">ساعات الدراسة</option>
+                                        <option value="sessions">جلسات بومودورو</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input type="number" id="goal-target" placeholder="الهدف الرقمي" min="1" class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                </div>
+                                <div>
+                                    <select id="goal-period" class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                        <option value="daily">يومي</option>
+                                        <option value="weekly">أسبوعي</option>
+                                        <option value="monthly">شهري</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="mt-4 bg-primary text-white py-2 px-6 rounded-lg flex items-center transition hover:bg-primary-dark focus:outline-none">
+                                <i class="bi bi-plus-lg mr-1"></i> إضافة الهدف
+                            </button>
+                        </form>
+                        
+                        <div id="goals-list" class="space-y-4">
+                            <p id="empty-goals-message" class="text-center py-4 text-gray-500">لا توجد أهداف حالية. أضف هدفاً للبدء!</p>
+                            <!-- Goals will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Focus Mode -->
+                <div id="focus" class="tab-content">
+                    <div class="glass p-6 rounded-xl mb-6">
+                        <h2 class="text-2xl font-bold mb-4 text-center text-primary">وضع التركيز</h2>
+                        
+                        <div class="mb-6 text-center">
+                            <button id="focus-mode-toggle" class="bg-primary text-white py-3 px-8 rounded-lg text-lg font-semibold transition hover:bg-primary-dark focus:outline-none">
+                                <i class="bi bi-shield-lock mr-1"></i> تفعيل وضع التركيز
+                            </button>
+                            
+                            <div id="focus-timer" class="mt-6 hidden">
+                                <div class="bg-white/20 dark:bg-black/20 p-4 rounded-lg inline-block">
+                                    <h3 id="focus-time-display" class="text-4xl font-bold">00:00:00</h3>
+                                    <p class="mt-1">وقت التركيز</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-semibold mb-3">إعدادات وضع التركيز</h3>
+                                <div class="space-y-3 bg-white/20 dark:bg-black/20 p-4 rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="dnd-mode" class="ml-2">
+                                            <span>وضع عدم الإزعاج</span>
+                                        </label>
+                                        <i class="bi bi-bell-slash text-lg"></i>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="block-distractions" class="ml-2">
+                                            <span>منع المواقع المشتتة</span>
+                                        </label>
+                                        <i class="bi bi-shield-x text-lg"></i>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="auto-break" class="ml-2">
+                                            <span>فترات راحة تلقائية</span>
+                                        </label>
+                                        <i class="bi bi-cup-hot text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <label class="block mb-1">مدة جلسة التركيز</label>
+                                        <select id="focus-duration" class="w-full bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-base">
+                                            <option value="25">25 دقيقة</option>
+                                            <option value="45">45 دقيقة</option>
+                                            <option value="60">ساعة</option>
+                                            <option value="90">ساعة ونصف</option>
+                                            <option value="120">ساعتين</option>
+                                            <option value="0">غير محدد</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-semibold mb-3">المواقع المشتتة</h3>
+                                <div class="bg-white/20 dark:bg-black/20 p-4 rounded-lg">
+                                    <form id="distraction-form" class="mb-3">
+                                        <div class="flex">
+                                            <input type="text" id="distraction-url" placeholder="أضف عنوان موقع مشتت..." class="flex-grow bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-gray-700 rounded-r-none rounded-lg px-3 py-2 text-base">
+                                            <button type="submit" class="bg-primary text-white py-2 px-4 rounded-l-none rounded-lg transition hover:bg-primary-dark focus:outline-none">إضافة</button>
+                                        </div>
+                                    </form>
+                                    <ul id="distractions-list" class="space-y-2">
+                                        <li class="flex justify-between items-center p-2 bg-white/10 dark:bg-black/10 rounded-lg">
+                                            <span>facebook.com</span>
+                                            <button class="delete-distraction text-red-500 hover:text-red-700"><i class="bi bi-trash"></i></button>
+                                        </li>
+                                        <li class="flex justify-between items-center p-2 bg-white/10 dark:bg-black/10 rounded-lg">
+                                            <span>instagram.com</span>
+                                            <button class="delete-distraction text-red-500 hover:text-red-700"><i class="bi bi-trash"></i></button>
+                                        </li>
+                                        <li class="flex justify-between items-center p-2 bg-white/10 dark:bg-black/10 rounded-lg">
+                                            <span>youtube.com</span>
+                                            <button class="delete-distraction text-red-500 hover:text-red-700"><i class="bi bi-trash"></i></button>
+                                        </li>
+                                        <li class="flex justify-between items-center p-2 bg-white/10 dark:bg-black/10 rounded-lg">
+                                            <span>twitter.com</span>
+                                            <button class="delete-distraction text-red-500 hover:text-red-700"><i class="bi bi-trash"></i></button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold mb-3">إحصائيات التركيز</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="bg-white/20 dark:bg-black/20 p-4 rounded-lg text-center">
+                                    <i class="bi bi-graph-up text-4xl text-primary mb-2"></i>
+                                    <h4 class="text-sm">جلسات التركيز</h4>
+                                    <p id="focus-sessions" class="text-2xl font-bold">0</p>
+                                </div>
+                                <div class="bg-white/20 dark:bg-black/20 p-4 rounded-lg text-center">
+                                    <i class="bi bi-clock-history text-4xl text-info mb-2"></i>
+                                    <h4 class="text-sm">إجمالي وقت التركيز</h4>
+                                    <p id="focus-total-time" class="text-2xl font-bold">0:00</p>
+                                </div>
+                                <div class="bg-white/20 dark:bg-black/20 p-4 rounded-lg text-center">
+                                    <i class="bi bi-shield-check text-4xl text-success mb-2"></i>
+                                    <h4 class="text-sm">متوسط التركيز</h4>
+                                    <p id="focus-average" class="text-2xl font-bold">0 د</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span id="notification-msg"></span>
+    </div>
+    
+    <!-- Audio elements -->
+    <audio id="timer-complete-sound">
+        <source src="data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAAAwAAAbAAkJCQkJCQkJCQkJCQkJCQwMDAwMDAwMDAwMDAwMDAwMD4+Pj4+Pj4+Pj4+Pj4+Pj4//////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAYSAAAAAAAAAbD5VRK6AAAAAAAAAAAAAAAAAAAAAP/jgMAAAACEgmYYRMAAB8CgAwIPn+cSL1MCDwfB8YQBkf//8YPg+D/KBj/4IPwQf/wfB/KCD/4S5UEHe5TCtFKKUWnGkEGCkFKbAkEHe0pRaplNGJlFJrjaSm0YmUTKKJtJSmEgcpTRJpgbNYtgoNmsTG0q1TH//+bzEylMzK0q1JmZmEFVbhwGBgCRlcA4MCgooCgwA0wIwYLM5ABZiw1Eyg4JjIYTChfTJAXzChmTCBYjFw0TLB4zklZTKUZzRpbzUIwzYokzbukTZJ8TUIajYt+TNTWzXLmTUVKTUIGTXOizhYWTPUgTUOIzQ9MZlOCTIMozOUuDMMfzO0lDMMfTME4zE9yzDZuzFwECgYFZg0GGYMhQGJAIJQEzFQEPgExAB7z6sKGEQCgQDQwPARYLAOl1TXdNRJUYRBREwPAlgoA6ZCiY20q8aCgQwIBMYFAJhMAoDAhgUAUGgHoeA8kK7mAgCYCAJgAAmDgUAgNDAUCMDgFDAQBMAACwEBgYIgHLg0GCa5OoMCl6GGwGZUFRiwxGTjAZrMJmYwiYzLhmMxmCwgYPCZgEQmJxaBARoDKxjM1GKjcZIMklIx2CTGYlEAw0QDJ5NBQGKwKYlFQEBUMATZH8xqgTYqTNfA03QEDQYCMVjwCGV3AZlHpqBJm4C6Z7EZmYLgIFwaP5mktmxlaZEA5moTmXBGYuCJkACGTgyBAnMWAwxUHQEAjEwgAQXNVE0zCZTHqJMrlYw+CjFIJAgCmBwCJQHmHgKZJBJjkNGRwUY5BhjANGLAUYpEgcAhhwWmEQYYmARh0BGEgWYhDZjsRGGwiZSCxlIWmShCY4FBgUBGDQQYJAZgQAmAAQYKBxhgHGHAKYcKhv3ZHHhkcvGnTybqMRys5nLTEAUMIgswKBjAoAAQFzDoCMFgMwMBDAAMMAA0wEDgAVzCAIMCAkv//OCmf/h9W3/lgXl5eXl9eXl5eX15f/2VZVlVVVlWVZVlWVZeXl9eXl5fYV5eXl9hYWFhYWFhWV//+MYxOcbQ9Z4AMPPJZVlWVZVlWVgAAAAwMAgoKCgpYWFhYWP///////0tLS0tLTExMTEzMzMzMzP///////8zMzMzMzAAAANra2tra2v///////////9ra2tra2pKSkpKSAAoKCgoKCv///////wAABEREREREADIyMjIyMv///////zIyMjIyMgIiIiIiIo6Ojo6OjoKCgoKCgpqampqamv///////////4LQ0NDQ0NDQ0NDQ0P///////9DQ0NDQ0AQUHBAAAJoaBgoIMDwKDhoSGAQEDgoIBgwQFBAaDAgOBAwOBgIMGgQOAhYKFBQaGiIaDhQiGA4CFBQQCgwGEAoMDhYOHgYaEgYIGgYOEBoaDg4KGBwKDgQEBgQOBBoQGgwUGhYoJjIgRlJgioiUdJCYcJCMcIiEfHyUgJCIfIyQjIiAfAAA/+M4xOkAAANIAAAAAJCI/Jh8eHiEfHx8eIR8hIyQlIyQjJCQkJCQkJCQkJCQkKioqKioqKioqKioqKioqKiouLi4uLi4uLi4uLi4uLi4uLjIyMjIyMjIyMjIyMjIyMjIyNDQ0NDQ0NDQ0NDQ0NDQ0NDQ4ODg4ODg4ODg4ODg4ODg4OD///////////////////8=" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    
+    <script>
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('theme-toggle');
+        
+        // Check user preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        // Listen for changes in color scheme preference
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+        
+        // Toggle dark mode
+        darkModeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+        
+        // Tab switching
+        const tabButtons = document.querySelectorAll('.btn-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Deactivate all tabs
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Activate selected tab
+                button.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Notification system
+        function showNotification(message, duration = 5000) {
+            const notification = document.getElementById('notification');
+            const notificationMsg = document.getElementById('notification-msg');
+            
+            notificationMsg.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
+        }
+        
+        // ===== POMODORO TIMER =====
+        let timer;
+        let timerRunning = false;
+        let timerSeconds = 25 * 60; // 25 minutes
+        let timerMode = 'study'; // 'study' or 'break'
+        let originalDuration = 25 * 60;
+        let cycleCount = 0;
+        
+        const timerDisplay = document.getElementById('timer-display');
+        const timerModeElement = document.getElementById('timer-mode');
+        const timerProgress = document.getElementById('timer-progress');
+        const timerStartBtn = document.getElementById('timer-start');
+        const timerPauseBtn = document.getElementById('timer-pause');
+        const timerResetBtn = document.getElementById('timer-reset');
+        const studyTimeInput = document.getElementById('study-time');
+        const breakTimeInput = document.getElementById('break-time');
+        const cycleCountElement = document.getElementById('cycle-count');
+        const cycleGoalInput = document.getElementById('cycle-goal');
+        const timerCompleteSound = document.getElementById('timer-complete-sound');
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(timerSeconds);
+            
+            // Update progress bar
+            const progress = 100 - (timerSeconds / originalDuration * 100);
+            timerProgress.style.width = `${progress}%`;
+        }
+        
+        function startTimer() {
+            if (timerRunning) return;
+            
+            timerRunning = true;
+            timerStartBtn.classList.add('hidden');
+            timerPauseBtn.classList.remove('hidden');
+            
+            timer = setInterval(() => {
+                if (timerSeconds > 0) {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    // Timer completed
+                    clearInterval(timer);
+                    timerCompleteSound.play();
+                    
+                    if (timerMode === 'study') {
+                        // Switch to break
+                        timerMode = 'break';
+                        timerSeconds = breakTimeInput.value * 60;
+                        originalDuration = timerSeconds;
+                        timerModeElement.textContent = 'وقت الراحة';
+                        
+                        // Increment cycle count
+                        cycleCount++;
+                        cycleCountElement.textContent = cycleCount;
+                        
+                        // Update daily sessions
+                        const dailySessions = parseInt(document.getElementById('daily-sessions').textContent);
+                        document.getElementById('daily-sessions').textContent = dailySessions + 1;
+                        
+                        // Update daily hours
+                        const studyMinutes = parseInt(studyTimeInput.value);
+                        const currentHours = document.getElementById('daily-hours').textContent;
+                        const [hours, minutes] = currentHours.split(':').map(Number);
+                        const totalMinutes = hours * 60 + minutes + studyMinutes;
+                        const newHours = Math.floor(totalMinutes / 60);
+                        const newMinutes = totalMinutes % 60;
+                        document.getElementById('daily-hours').textContent = `${newHours}:${newMinutes.toString().padStart(2, '0')}`;
+                        
+                        showNotification('انتهى وقت الدراسة! استمتع بفترة راحة قصيرة.');
+                    } else {
+                        // Switch back to study
+                        timerMode = 'study';
+                        timerSeconds = studyTimeInput.value * 60;
+                        originalDuration = timerSeconds;
+                        timerModeElement.textContent = 'وقت الدراسة';
+                        
+                        // Check if cycle goal reached
+                        if (cycleCount >= parseInt(cycleGoalInput.value)) {
+                            showNotification('تهانينا! لقد أكملت دورات البومودورو المستهدفة اليوم.');
+                        } else {
+                            showNotification('انتهت فترة الراحة! حان وقت العودة للدراسة.');
+                        }
+                    }
+                    
+                    updateTimerDisplay();
+                    startTimer();
+                }
+            }, 1000);
+        }
+        
+        function pauseTimer() {
+            clearInterval(timer);
+            timerRunning = false;
+            timerStartBtn.classList.remove('hidden');
+            timerPauseBtn.classList.add('hidden');
+        }
+        
+        function resetTimer() {
+            clearInterval(timer);
+            timerRunning = false;
+            timerStartBtn.classList.remove('hidden');
+            timerPauseBtn.classList.add('hidden');
+            
+            timerMode = 'study';
+            timerSeconds = studyTimeInput.value * 60;
+            originalDuration = timerSeconds;
+            timerModeElement.textContent = 'وقت الدراسة';
+            updateTimerDisplay();
+        }
+        
+        timerStartBtn.addEventListener('click', startTimer);
+        timerPauseBtn.addEventListener('click', pauseTimer);
+        timerResetBtn.addEventListener('click', resetTimer);
+        
+        studyTimeInput.addEventListener('change', () => {
+            if (!timerRunning && timerMode === 'study') {
+                timerSeconds = studyTimeInput.value * 60;
+                originalDuration = timerSeconds;
+                updateTimerDisplay();
+            }
+        });
+        
+        breakTimeInput.addEventListener('change', () => {
+            if (!timerRunning && timerMode === 'break') {
+                timerSeconds = breakTimeInput.value * 60;
+                originalDuration = timerSeconds;
+                updateTimerDisplay();
+            }
+        });
+        
+        // ===== TO-DO LIST =====
+        const todoForm = document.getElementById('todo-form');
+        const taskNameInput = document.getElementById('task-name');
+        const taskCategoryInput = document.getElementById('task-category');
+        const taskSubjectInput = document.getElementById('task-subject');
+        const taskDueDateInput = document.getElementById('task-due-date');
+        const todoList = document.getElementById('todo-list');
+        const emptyTodoMessage = document.getElementById('empty-todo-message');
+        const filterCategory = document.getElementById('filter-category');
+        const filterStatus = document.getElementById('filter-status');
+        
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+        
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+        
+        function createTodoItem(todo, index) {
+            const dueDateFormatted = new Date(todo.dueDate).toLocaleDateString('ar-SA');
+            
+            const todoItem = document.createElement('div');
+            todoItem.className = `todo-item flex items-center justify-between p-3 rounded-lg ${todo.completed ? 'bg-gray-100/30 dark:bg-gray-800/30' : 'bg-white/20 dark:bg-black/20'}`;
+            todoItem.dataset.index = index;
+            todoItem.dataset.category = todo.category;
+            todoItem.dataset.status = todo.completed ? 'completed' : 'pending';
+            
+            todoItem.innerHTML = `
+                <div class="flex items-center">
+                    <div class="custom-checkbox ${todo.completed ? 'checked' : ''} mr-3">
+                        <i class="bi bi-check"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center">
+                            <h4 class="${todo.completed ? 'task-complete' : ''}">${todo.name}</h4>
+                            <span class="category-badge mr-2 bg-primary/20 text-primary rounded-full">${todo.category}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400 flex mt-1">
+                            <span class="ml-3">${todo.subject}</span>
+                            <span><i class="bi bi-calendar-date ml-1"></i> ${dueDateFormatted}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <button class="edit-todo mr-2 text-primary hover:text-primary-dark" data-index="${index}">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="delete-todo text-red-500 hover:text-red-700" data-index="${index}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            const checkbox = todoItem.querySelector('.custom-checkbox');
+            checkbox.addEventListener('click', () => {
+                toggleTodoComplete(index);
+            });
+            
+            const editBtn = todoItem.querySelector('.edit-todo');
+            editBtn.addEventListener('click', () => {
+                editTodo(index);
+            });
+            
+            const deleteBtn = todoItem.querySelector('.delete-todo');
+            deleteBtn.addEventListener('click', () => {
+                deleteTodo(index);
+            });
+            
+            return todoItem;
+        }
+        
+        function renderTodos() {
+            // Clear existing todos
+            todoList.innerHTML = '';
+            
+            const categoryFilter = filterCategory.value;
+            const statusFilter = filterStatus.value;
+            
+            const filteredTodos = todos.filter(todo => {
+                if (categoryFilter !== 'all' && todo.category !== categoryFilter) {
+                    return false;
+                }
+                
+                if (statusFilter !== 'all') {
+                    if (statusFilter === 'completed' && !todo.completed) {
+                        return false;
+                    }
+                    if (statusFilter === 'pending' && todo.completed) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            if (filteredTodos.length === 0) {
+                emptyTodoMessage.style.display = 'block';
+            } else {
+                emptyTodoMessage.style.display = 'none';
+                
+                // Render todos
+                filteredTodos.forEach((todo, index) => {
+                    const todoItem = createTodoItem(todo, index);
+                    todoList.appendChild(todoItem);
+                });
+            }
+            
+            // Update task count in daily stats
+            document.getElementById('daily-tasks').textContent = todos.filter(todo => todo.completed).length;
+        }
+        
+        function addTodo(name, category, subject, dueDate) {
+            todos.push({
+                name,
+                category,
+                subject,
+                dueDate,
+                completed: false,
+                createdAt: new Date().toISOString()
+            });
+            
+            saveTodos();
+            renderTodos();
+            showNotification('تمت إضافة المهمة بنجاح');
+        }
+        
+        function toggleTodoComplete(index) {
+            todos[index].completed = !todos[index].completed;
+            saveTodos();
+            renderTodos();
+            
+            // Update completed tasks count in progress tab
+            updateProgressStats();
+            
+            if (todos[index].completed) {
+                showNotification('أحسنت! تم إكمال المهمة');
+            }
+        }
+        
+        function editTodo(index) {
+            const todo = todos[index];
+            
+            taskNameInput.value = todo.name;
+            taskCategoryInput.value = todo.category;
+            taskSubjectInput.value = todo.subject;
+            taskDueDateInput.value = todo.dueDate ? todo.dueDate.split('T')[0] : '';
+            
+            // Change form submission behavior
+            todoForm.onsubmit = function(e) {
+                e.preventDefault();
+                
+                todos[index].name = taskNameInput.value;
+                todos[index].category = taskCategoryInput.value;
+                todos[index].subject = taskSubjectInput.value;
+                todos[index].dueDate = taskDueDateInput.value;
+                
+                saveTodos();
+                renderTodos();
+                
+                // Reset form and behavior
+                todoForm.reset();
+                todoForm.onsubmit = handleTodoSubmit;
+                
+                showNotification('تم تحديث المهمة بنجاح');
+            };
+        }
+        
+        function deleteTodo(index) {
+            todos.splice(index, 1);
+            saveTodos();
+            renderTodos();
+            showNotification('تم حذف المهمة');
+        }
+        
+        function handleTodoSubmit(e) {
+            e.preventDefault();
+            
+            const name = taskNameInput.value.trim();
+            const category = taskCategoryInput.value;
+            const subject = taskSubjectInput.value.trim();
+            const dueDate = taskDueDateInput.value;
+            
+            if (name && category) {
+                addTodo(name, category, subject, dueDate);
+                todoForm.reset();
+            } else {
+                showNotification('يرجى إدخال عنوان المهمة والتصنيف على الأقل');
+            }
+        }
+        
+        todoForm.addEventListener('submit', handleTodoSubmit);
+        
+        filterCategory.addEventListener('change', renderTodos);
+        filterStatus.addEventListener('change', renderTodos);
+        
+        // Initial render of todos
+        renderTodos();
+        
+        // ===== STUDY SCHEDULE =====
+        const scheduleTypeSelect = document.getElementById('schedule-type');
+        const generateScheduleBtn = document.getElementById('generate-schedule');
+        const addSubjectForm = document.getElementById('add-subject-form');
+        const scheduleContent = document.getElementById('schedule-content');
+        const dayTabs = document.querySelectorAll('.day-tab');
+        const emptyScheduleMessage = document.getElementById('empty-schedule-message');
+        
+        let schedule = JSON.parse(localStorage.getItem('schedule')) || {
+            السبت: [],
+            الأحد: [],
+            الاثنين: [],
+            الثلاثاء: [],
+            الأربعاء: [],
+            الخميس: [],
+            الجمعة: []
+        };
+        
+        let currentDay = 'اليوم';
+        
+        function saveSchedule() {
+            localStorage.setItem('schedule', JSON.stringify(schedule));
+        }
+        
+        function getCurrentArabicDay() {
+            const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            return days[new Date().getDay()];
+        }
+        
+        function renderSchedule(day) {
+            const scheduleDay = document.getElementById('today-schedule');
+            scheduleDay.innerHTML = '';
+            
+            let dayToRender = day === 'اليوم' ? getCurrentArabicDay() : day;
+            let daySchedule = schedule[dayToRender] || [];
+            
+            if (daySchedule.length === 0) {
+                emptyScheduleMessage.style.display = 'block';
+                emptyScheduleMessage.textContent = `لا توجد مواد مضافة ليوم ${dayToRender}. أضف مواد أو قم بإنشاء جدول تلقائي!`;
+            } else {
+                emptyScheduleMessage.style.display = 'none';
+                
+                // Sort by start time
+                daySchedule.sort((a, b) => {
+                    return a.startTime.localeCompare(b.startTime);
+                });
+                
+                daySchedule.forEach((subject, index) => {
+                    const scheduleItem = document.createElement('div');
+                    scheduleItem.className = 'schedule-item bg-white/20 dark:bg-black/20 p-4 rounded-lg mb-3 relative';
+                    
+                    const startTime = subject.startTime;
+                    const endTime = subject.endTime;
+                    const duration = calculateDuration(startTime, endTime);
+                    
+                    scheduleItem.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-lg font-semibold">${subject.name}</h4>
+                                <div class="text-sm mt-1 flex items-center">
+                                    <span class="text-gray-600 dark:text-gray-400 ml-3">
+                                        <i class="bi bi-clock ml-1"></i> ${startTime} - ${endTime}
+                                    </span>
+                                    <span class="text-gray-600 dark:text-gray-400">
+                                        <i class="bi bi-hourglass-split ml-1"></i> ${duration} دقيقة
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex">
+                                <button class="edit-subject mr-2 text-primary hover:text-primary-dark" data-day="${dayToRender}" data-index="${index}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="delete-subject text-red-500 hover:text-red-700" data-day="${dayToRender}" data-index="${index}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Check if this subject time is now or upcoming
+                    const now = new Date();
+                    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                    
+                    if (dayToRender === getCurrentArabicDay() && startTime <= currentTime && endTime >= currentTime) {
+                        scheduleItem.classList.add('border-2', 'border-primary');
+                        
+                        const currentTag = document.createElement('div');
+                        currentTag.className = 'absolute -top-2 -left-2 bg-primary text-white text-xs px-2 py-1 rounded-full';
+                        currentTag.textContent = 'الآن';
+                        scheduleItem.appendChild(currentTag);
+                    }
+                    
+                    scheduleDay.appendChild(scheduleItem);
+                    
+                    // Add event listeners
+                    const editBtn = scheduleItem.querySelector('.edit-subject');
+                    editBtn.addEventListener('click', () => {
+                        editSubject(dayToRender, index);
+                    });
+                    
+                    const deleteBtn = scheduleItem.querySelector('.delete-subject');
+                    deleteBtn.addEventListener('click', () => {
+                        deleteSubject(dayToRender, index);
+                    });
+                });
+            }
+        }
+        
+        function calculateDuration(startTime, endTime) {
+            const [startHour, startMin] = startTime.split(':').map(Number);
+            const [endHour, endMin] = endTime.split(':').map(Number);
+            
+            let durationMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+            if (durationMinutes < 0) durationMinutes += 24 * 60; // If spanning midnight
+            
+            return durationMinutes;
+        }
+        
+        function addSubject(name, day, startTime, endTime) {
+            if (!schedule[day]) {
+                schedule[day] = [];
+            }
+            
+            schedule[day].push({
+                name,
+                startTime,
+                endTime
+            });
+            
+            saveSchedule();
+            renderSchedule(currentDay);
+            showNotification(`تمت إضافة مادة ${name} إلى جدول يوم ${day}`);
+        }
+        
+        function editSubject(day, index) {
+            const subject = schedule[day][index];
+            
+            document.getElementById('subject-name').value = subject.name;
+            document.getElementById('subject-day').value = day;
+            document.getElementById('subject-start-time').value = subject.startTime;
+            document.getElementById('subject-end-time').value = subject.endTime;
+            
+            // Change form submission behavior
+            addSubjectForm.onsubmit = function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('subject-name').value.trim();
+                const newDay = document.getElementById('subject-day').value;
+                const startTime = document.getElementById('subject-start-time').value;
+                const endTime = document.getElementById('subject-end-time').value;
+                
+                if (name && newDay && startTime && endTime) {
+                    // Delete from original day
+                    schedule[day].splice(index, 1);
+                    
+                    // Add to new day (might be the same)
+                    if (!schedule[newDay]) {
+                        schedule[newDay] = [];
+                    }
+                    
+                    schedule[newDay].push({
+                        name,
+                        startTime,
+                        endTime
+                    });
+                    
+                    saveSchedule();
+                    renderSchedule(currentDay);
+                    
+                    // Reset form and behavior
+                    addSubjectForm.reset();
+                    addSubjectForm.onsubmit = handleAddSubject;
+                    
+                    showNotification('تم تحديث المادة بنجاح');
+                } else {
+                    showNotification('يرجى ملء جميع الحقول المطلوبة');
+                }
+            };
+        }
+        
+        function deleteSubject(day, index) {
+            schedule[day].splice(index, 1);
+            saveSchedule();
+            renderSchedule(currentDay);
+            showNotification('تم حذف المادة من الجدول');
+        }
+        
+        function generateAutomaticSchedule() {
+            const type = scheduleTypeSelect.value;
+            const days = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+            
+            // Get subjects from the to-do list
+            const subjects = [...new Set(todos.map(todo => todo.subject))].filter(subject => subject);
+            
+            if (subjects.length === 0) {
+                showNotification('أضف بعض المهام ذات المواد الدراسية أولاً لإنشاء جدول تلقائي');
+                return;
+            }
+            
+            if (type === 'daily') {
+                // Clear schedule for today
+                const today = getCurrentArabicDay();
+                schedule[today] = [];
+                
+                // Distribute subjects throughout the day
+                let startHour = 9; // Start at 9 AM
+                
+                subjects.forEach((subject, index) => {
+                    const startTime = `${startHour.toString().padStart(2, '0')}:00`;
+                    startHour += 1; // Each subject takes 1 hour
+                    const endTime = `${startHour.toString().padStart(2, '0')}:00`;
+                    
+                    // Add 30 min break after every 2 subjects
+                    if (index % 2 === 1) {
+                        startHour += 0.5;
+                    }
+                    
+                    schedule[today].push({
+                        name: subject,
+                        startTime,
+                        endTime
+                    });
+                });
+            } else if (type === 'weekly') {
+                // Distribute subjects throughout the week
+                days.forEach(day => {
+                    schedule[day] = [];
+                });
+                
+                let currentDayIndex = 0;
+                let subjectsPerDay = Math.ceil(subjects.length / days.length);
+                
+                for (let i = 0; i < subjects.length; i++) {
+                    const day = days[currentDayIndex];
+                    const subject = subjects[i];
+                    
+                    // Calculate time (distribute 3 per day - morning, noon, and evening)
+                    const position = schedule[day].length;
+                    let startHour, endHour;
+                    
+                    if (position === 0) {
+                        startHour = 10;
+                        endHour = 12;
+                    } else if (position === 1) {
+                        startHour = 14;
+                        endHour = 16;
+                    } else {
+                        startHour = 18;
+                        endHour = 20;
+                    }
+                    
+                    const startTime = `${startHour.toString().padStart(2, '0')}:00`;
+                    const endTime = `${endHour.toString().padStart(2, '0')}:00`;
+                    
+                    schedule[day].push({
+                        name: subject,
+                        startTime,
+                        endTime
+                    });
+                    
+                    // Move to next day if we've reached the subjects per day limit
+                    if (schedule[day].length >= subjectsPerDay) {
+                        currentDayIndex = (currentDayIndex + 1) % days.length;
+                    }
+                }
+            }
+            
+            saveSchedule();
+            renderSchedule(currentDay);
+            showNotification('تم إنشاء الجدول الدراسي بنجاح');
+        }
+        
+        function handleAddSubject(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('subject-name').value.trim();
+            const day = document.getElementById('subject-day').value;
+            const startTime = document.getElementById('subject-start-time').value;
+            const endTime = document.getElementById('subject-end-time').value;
+            
+            if (name && day !== 'اليوم' && startTime && endTime) {
+                addSubject(name, day, startTime, endTime);
+                addSubjectForm.reset();
+            } else {
+                showNotification('يرجى ملء جميع الحقول المطلوبة');
+            }
+        }
+        
+        addSubjectForm.addEventListener('submit', handleAddSubject);
+        
+        generateScheduleBtn.addEventListener('click', generateAutomaticSchedule);
+        
+        dayTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Update active tab
+                dayTabs.forEach(t => t.classList.remove('bg-primary', 'text-white', 'rounded-t-lg'));
+                tab.classList.add('bg-primary', 'text-white', 'rounded-t-lg');
+                
+                // Update current day and render schedule
+                currentDay = tab.textContent;
+                renderSchedule(currentDay);
+            });
+        });
+        
+        // Initial render of schedule
+        renderSchedule('اليوم');
+        
+        // ===== PROGRESS TRACKING =====
+        function updateProgressStats() {
+            // Update completed tasks
+            const completedTasks = todos.filter(todo => todo.completed).length;
+            document.getElementById('total-completed-tasks').textContent = completedTasks;
+            
+            // Other stats would come from localStorage in a real app
+            
+            // Update activity log - would normally be populated from stored data
+            const activityLog = document.getElementById('activity-log');
+            activityLog.innerHTML = '';
+            
+            // Example entries
+            const today = new Date();
+            
+            const entries = [
+                {
+                    date: today,
+                    tasks: completedTasks,
+                    hours: document.getElementById('daily-hours').textContent,
+                    pomodoros: cycleCount
+                },
+                {
+                    date: new Date(today.getTime() - 24 * 60 * 60 * 1000), // yesterday
+                    tasks: Math.floor(completedTasks / 2),
+                    hours: '1:30',
+                    pomodoros: 3
+                }
+            ];
+            
+            if (entries.length > 0) {
+                entries.forEach(entry => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-300 dark:border-gray-700';
+                    
+                    const formattedDate = entry.date.toLocaleDateString('ar-SA');
+                    
+                    row.innerHTML = `
+                        <td class="py-3">${formattedDate}</td>
+                        <td class="py-3">${entry.tasks}</td>
+                        <td class="py-3">${entry.hours}</td>
+                        <td class="py-3">${entry.pomodoros}</td>
+                    `;
+                    
+                    activityLog.appendChild(row);
+                });
+            } else {
+                activityLog.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-gray-500">لا توجد بيانات نشاط حتى الآن. ابدأ الدراسة لتسجيل النشاط!</td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Call initially
+        updateProgressStats();
+        
+        // ===== STUDY GOALS =====
+        const goalForm = document.getElementById('goal-form');
+        const goalsList = document.getElementById('goals-list');
+        const emptyGoalsMessage = document.getElementById('empty-goals-message');
+        
+        let goals = JSON.parse(localStorage.getItem('goals')) || [];
+        
+        function saveGoals() {
+            localStorage.setItem('goals', JSON.stringify(goals));
+        }
+        
+        function calculateGoalProgress(goal) {
+            let current = 0;
+            
+            if (goal.type === 'task') {
+                current = todos.filter(todo => todo.completed).length;
+            } else if (goal.type === 'hours') {
+                // In a real app, we'd have a proper hour tracking system
+                const dailyHours = document.getElementById('daily-hours').textContent;
+                const [hours, minutes] = dailyHours.split(':').map(Number);
+                current = hours + (minutes / 60);
+            } else if (goal.type === 'sessions') {
+                current = cycleCount;
+            }
+            
+            return Math.min(100, Math.round((current / goal.target) * 100));
+        }
+        
+        function renderGoals() {
+            // Clear existing goals
+            goalsList.innerHTML = '';
+            
+            if (goals.length === 0) {
+                emptyGoalsMessage.style.display = 'block';
+            } else {
+                emptyGoalsMessage.style.display = 'none';
+                
+                // Render goals
+                goals.forEach((goal, index) => {
+                    const progress = calculateGoalProgress(goal);
+                    const goalItem = document.createElement('div');
+                    goalItem.className = 'glass p-4 rounded-lg';
+                    
+                    // Format type for display
+                    let typeText;
+                    if (goal.type === 'task') {
+                        typeText = 'مهمة';
+                    } else if (goal.type === 'hours') {
+                        typeText = 'ساعة دراسة';
+                    } else if (goal.type === 'sessions') {
+                        typeText = 'جلسة بومودورو';
+                    }
+                    
+                    // Format period for display
+                    let periodText;
+                    if (goal.period === 'daily') {
+                        periodText = 'يومياً';
+                    } else if (goal.period === 'weekly') {
+                        periodText = 'أسبوعياً';
+                    } else if (goal.period === 'monthly') {
+                        periodText = 'شهرياً';
+                    }
+                    
+                    goalItem.innerHTML = `
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-lg font-semibold">${goal.title}</h3>
+                            <div class="flex">
+                                <button class="edit-goal mr-2 text-primary hover:text-primary-dark" data-index="${index}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="delete-goal text-red-500 hover:text-red-700" data-index="${index}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                            ${goal.target} ${typeText} ${periodText}
+                        </p>
+                        <div class="progress-bar">
+                            <div class="progress-bar-inner" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="flex justify-between mt-1 text-sm">
+                            <span>التقدم: ${progress}%</span>
+                            <span class="text-primary">${progress >= 100 ? 'مكتمل! 🎉' : ''}</span>
+                        </div>
+                    `;
+                    
+                    goalsList.appendChild(goalItem);
+                    
+                    // Add event listeners
+                    const editBtn = goalItem.querySelector('.edit-goal');
+                    editBtn.addEventListener('click', () => {
+                        editGoal(index);
+                    });
+                    
+                    const deleteBtn = goalItem.querySelector('.delete-goal');
+                    deleteBtn.addEventListener('click', () => {
+                        deleteGoal(index);
+                    });
+                });
+            }
+        }
+        
+        function addGoal(title, type, target, period) {
+            goals.push({
+                title,
+                type,
+                target: parseInt(target),
+                period,
+                createdAt: new Date().toISOString()
+            });
+            
+            saveGoals();
+            renderGoals();
+            showNotification('تمت إضافة الهدف بنجاح');
+        }
+        
+        function editGoal(index) {
+            const goal = goals[index];
+            
+            document.getElementById('goal-title').value = goal.title;
+            document.getElementById('goal-type').value = goal.type;
+            document.getElementById('goal-target').value = goal.target;
+            document.getElementById('goal-period').value = goal.period;
+            
+            // Change form submission behavior
+            goalForm.onsubmit = function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('goal-title').value.trim();
+                const type = document.getElementById('goal-type').value;
+                const target = document.getElementById('goal-target').value;
+                const period = document.getElementById('goal-period').value;
+                
+                if (title && type && target && period) {
+                    goals[index].title = title;
+                    goals[index].type = type;
+                    goals[index].target = parseInt(target);
+                    goals[index].period = period;
+                    
+                    saveGoals();
+                    renderGoals();
+                    
+                    // Reset form and behavior
+                    goalForm.reset();
+                    goalForm.onsubmit = handleGoalSubmit;
+                    
+                    showNotification('تم تحديث الهدف بنجاح');
+                } else {
+                    showNotification('يرجى ملء جميع الحقول المطلوبة');
+                }
+            };
+        }
+        
+        function deleteGoal(index) {
+            goals.splice(index, 1);
+            saveGoals();
+            renderGoals();
+            showNotification('تم حذف الهدف');
+        }
+        
+        function handleGoalSubmit(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('goal-title').value.trim();
+            const type = document.getElementById('goal-type').value;
+            const target = document.getElementById('goal-target').value;
+            const period = document.getElementById('goal-period').value;
+            
+            if (title && type && target && period) {
+                addGoal(title, type, target, period);
+                goalForm.reset();
+            } else {
+                showNotification('يرجى ملء جميع الحقول المطلوبة');
+            }
+        }
+        
+        goalForm.addEventListener('submit', handleGoalSubmit);
+        
+        // Initial render of goals
+        renderGoals();
+        
+        // ===== FOCUS MODE =====
+        const focusModeToggle = document.getElementById('focus-mode-toggle');
+        const focusTimer = document.getElementById('focus-timer');
+        const focusTimeDisplay = document.getElementById('focus-time-display');
+        const distractionForm = document.getElementById('distraction-form');
+        const distractionUrl = document.getElementById('distraction-url');
+        const distractionsList = document.getElementById('distractions-list');
+        
+        let focusMode = false;
+        let focusStartTime = null;
+        let focusInterval = null;
+        let distractions = JSON.parse(localStorage.getItem('distractions')) || [
+            'facebook.com',
+            'instagram.com',
+            'youtube.com',
+            'twitter.com'
+        ];
+        
+        function saveDistractions() {
+            localStorage.setItem('distractions', JSON.stringify(distractions));
+        }
+        
+        function renderDistractions() {
+            distractionsList.innerHTML = '';
+            
+            distractions.forEach((url, index) => {
+                const item = document.createElement('li');
+                item.className = 'flex justify-between items-center p-2 bg-white/10 dark:bg-black/10 rounded-lg';
+                
+                item.innerHTML = `
+                    <span>${url}</span>
+                    <button class="delete-distraction text-red-500 hover:text-red-700" data-index="${index}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                `;
+                
+                distractionsList.appendChild(item);
+                
+                // Add event listener
+                const deleteBtn = item.querySelector('.delete-distraction');
+                deleteBtn.addEventListener('click', () => {
+                    deleteDistraction(index);
+                });
+            });
+        }
+        
+        function addDistraction(url) {
+            distractions.push(url);
+            saveDistractions();
+            renderDistractions();
+            showNotification(`تمت إضافة ${url} إلى قائمة المواقع المشتتة`);
+        }
+        
+        function deleteDistraction(index) {
+            distractions.splice(index, 1);
+            saveDistractions();
+            renderDistractions();
+            showNotification('تم حذف الموقع من قائمة المشتتات');
+        }
+        
+        function toggleFocusMode() {
+            focusMode = !focusMode;
+            
+            if (focusMode) {
+                // Start focus mode
+                focusStartTime = new Date();
+                focusTimer.classList.remove('hidden');
+                focusModeToggle.innerHTML = '<i class="bi bi-shield-x mr-1"></i> إيقاف وضع التركيز';
+                focusModeToggle.classList.add('bg-secondary');
+                focusModeToggle.classList.remove('bg-primary');
+                
+                // Start timer
+                focusInterval = setInterval(updateFocusTimer, 1000);
+                
+                // Show notification
+                showNotification('تم تفعيل وضع التركيز. ركز على دراستك الآن!');
+                
+                // If DnD mode is enabled, simulate it
+                if (document.getElementById('dnd-mode').checked) {
+                    // In a real app, this would integrate with the OS notifications API
+                    showNotification('تم تفعيل وضع عدم الإزعاج');
+                }
+            } else {
+                // End focus mode
+                clearInterval(focusInterval);
+                focusTimer.classList.add('hidden');
+                focusModeToggle.innerHTML = '<i class="bi bi-shield-lock mr-1"></i> تفعيل وضع التركيز';
+                focusModeToggle.classList.remove('bg-secondary');
+                focusModeToggle.classList.add('bg-primary');
+                
+                // Calculate focus duration
+                const focusEndTime = new Date();
+                const focusDuration = Math.floor((focusEndTime - focusStartTime) / 1000);
+                const hours = Math.floor(focusDuration / 3600);
+                const minutes = Math.floor((focusDuration % 3600) / 60);
+                const seconds = focusDuration % 60;
+                
+                // Update focus stats
+                const focusSessions = parseInt(document.getElementById('focus-sessions').textContent);
+                document.getElementById('focus-sessions').textContent = focusSessions + 1;
+                
+                const totalFocusTime = document.getElementById('focus-total-time').textContent;
+                const [totalHours, totalMinutes] = totalFocusTime.split(':').map(Number);
+                const newTotalMinutes = totalHours * 60 + totalMinutes + hours * 60 + minutes;
+                const newTotalHours = Math.floor(newTotalMinutes / 60);
+                const newTotalMin = newTotalMinutes % 60;
+                document.getElementById('focus-total-time').textContent = `${newTotalHours}:${newTotalMin.toString().padStart(2, '0')}`;
+                
+                const avgFocus = Math.round(newTotalMinutes / (focusSessions + 1));
+                document.getElementById('focus-average').textContent = `${avgFocus} د`;
+                
+                // Show stats notification
+                showNotification(`أحسنت! لقد ركزت لمدة ${hours > 0 ? hours + ' ساعة و' : ''}${minutes} دقيقة و${seconds} ثانية`);
+            }
+        }
+        
+        function updateFocusTimer() {
+            const now = new Date();
+            const elapsedSeconds = Math.floor((now - focusStartTime) / 1000);
+            
+            const hours = Math.floor(elapsedSeconds / 3600);
+            const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+            const seconds = elapsedSeconds % 60;
+            
+            focusTimeDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Check if focus duration is reached
+            const focusDuration = parseInt(document.getElementById('focus-duration').value);
+            if (focusDuration > 0 && minutes >= focusDuration && seconds === 0) {
+                if (document.getElementById('auto-break').checked) {
+                    showNotification('حان وقت أخذ استراحة! استرخِ قليلاً ثم عُد للدراسة.');
+                    
+                    // Switch to Pomodoro tab and start break
+                    document.querySelector('[data-tab="pomodoro"]').click();
+                    if (timerMode === 'study') {
+                        timerSeconds = 1; // Force a study cycle end
+                        startTimer();
+                    }
+                }
+            }
+        }
+        
+        function handleDistractionSubmit(e) {
+            e.preventDefault();
+            
+            const url = distractionUrl.value.trim();
+            if (url) {
+                addDistraction(url);
+                distractionForm.reset();
+            } else {
+                showNotification('يرجى إدخال عنوان موقع صحيح');
+            }
+        }
+        
+        focusModeToggle.addEventListener('click', toggleFocusMode);
+        distractionForm.addEventListener('submit', handleDistractionSubmit);
+        
+        // Delete distraction buttons
+        document.querySelectorAll('.delete-distraction').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const index = this.getAttribute('data-index');
+                deleteDistraction(index);
+            });
+        });
+        
+        // Initial render of distractions
+        renderDistractions();
+    </script>
+</body>
+</html>
